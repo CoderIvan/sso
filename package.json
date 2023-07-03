@@ -4,7 +4,6 @@
   "description": "",
   "scripts": {
     "build": "tsc",
-    "build:prisma": "prisma generate && prisma db seed",
     "start": "node dist/index.js",
     "dev": "cross-env NODE_ENV=development nodemon --exec ts-node src/index.ts"
   },
@@ -38,8 +37,5 @@
     "prisma": "^4.16.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   }
 }
