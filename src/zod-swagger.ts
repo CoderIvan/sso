@@ -1,4 +1,3 @@
-import { FastifyPluginCallback, FastifyPluginAsync } from "fastify";
 import fp from "fastify-plugin";
 import { jsonSchemaTransform } from "fastify-type-provider-zod";
 import fastifySwagger from "@fastify/swagger";
