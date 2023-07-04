@@ -3,8 +3,15 @@ import AutoLoad from "@fastify/autoload";
 import Fastify, { FastifyServerOptions } from "fastify";
 import zodSwagger from "./zod-swagger";
 
-const openPrettyLog = process.env.PRETTY_LOG === "1";
-const openSwaggerUI = process.env.SWAGGER_UI === "1";
+const {
+  ADDRESS = "localhost",
+  PORT = "3000",
+  PRETTY_LOG,
+  SWAGGER_UI,
+} = process.env;
+
+const openPrettyLog = PRETTY_LOG === "1";
+const openSwaggerUI = SWAGGER_UI === "1";
 
 const fastifyHttpOptions: FastifyServerOptions = {
   logger: true,
@@ -37,8 +44,6 @@ fastify.after(() => {
 
 (async function run() {
   await fastify.ready();
-
-  const { ADDRESS = "localhost", PORT = "3000" } = process.env;
 
   await fastify.listen({
     host: ADDRESS,

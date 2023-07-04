@@ -5,8 +5,11 @@ import { join } from "path";
 export default fp(async (fastify) => {
   const schema = {
     type: "object",
-    required: ["REDIS_PATH"],
+    required: ["MYSQL_URL", "REDIS_PATH"],
     properties: {
+      MYSQL_URL: {
+        type: "string",
+      },
       REDIS_PATH: {
         type: "string",
       },

@@ -29,7 +29,6 @@ declare module "fastify" {
   interface FastifyInstance {
     config: {
       REDIS_PATH: string;
-      REDIS_OPTIONS_KEYPREFIX: string;
     };
   }
 }
