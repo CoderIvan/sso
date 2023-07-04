@@ -25,12 +25,14 @@
     "fastify-plugin": "^4.5.0",
     "fastify-type-provider-zod": "^1.1.9",
     "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.0",
     "pino-pretty": "^10.0.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
     "@tsconfig/node-lts": "^18.12.3",
     "@types/express-session": "^1.17.7",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^20.3.2",
     "cross-env": "^7.0.3",
     "nodemon": "^2.0.22",

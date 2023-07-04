@@ -40,7 +40,7 @@ fastify.after(() => {
 
   const { ADDRESS = "localhost", PORT = "3000" } = process.env;
 
-  const address = await fastify.listen({
+  await fastify.listen({
     host: ADDRESS,
     port: parseInt(PORT, 10),
     listenTextResolver: (address) => {
