@@ -1,3 +1,5 @@
+import * as crypto from "crypto";
+
 export class CodeValue {
   id: number;
   login_name: string;
@@ -10,8 +12,13 @@ export class CodeValue {
 class Codes {
   private codes: Record<string, CodeValue> = {};
 
-  async set(key: string, value: CodeValue): Promise<void> {
+  private async set(key: string, value: CodeValue): Promise<void> {
     this.codes[key] = value;
+  }
+
+  private async gen(): Promise<string> {
+    const code = crypto.randomBytes(16).toString("hex");
+    return code;
   }
 
   private async get(key: string): Promise<CodeValue> {
@@ -26,6 +33,12 @@ class Codes {
     const value = await this.get(key);
     await this.delete(key);
     return value;
+  }
+
+  async genAndSet(value: CodeValue): Promise<string> {
+    const code = await this.gen();
+    await this.set(code, value);
+    return code;
   }
 }
 

@@ -16,3 +16,13 @@ model User {
   create_at BigInt
   create_by Int?
 }
+model Client {
+  id Int  @id @default(autoincrement())
+  name String @unique
+  client_id String @unique
+  client_secret String
+  redirect_uris String
+  disabled Boolean @default(false)
+  create_at BigInt
+  create_by Int?
+}
