@@ -4,7 +4,7 @@ import { FastifyPluginAsync } from "fastify";
 
 const router: FastifyPluginAsync = async (fastify) => {
   fastify.withTypeProvider<ZodTypeProvider>().route({
-    method: "GET",
+    method: "DELETE",
     url: "/logout",
     schema: {
       tags: ["user"],

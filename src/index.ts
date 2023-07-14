@@ -40,6 +40,9 @@ fastify.after(() => {
   fastify.register(AutoLoad, {
     dir: join(__dirname, "routes"),
   });
+  fastify.register(AutoLoad, {
+    dir: join(__dirname, "seed"),
+  });
 });
 
 (async function run() {

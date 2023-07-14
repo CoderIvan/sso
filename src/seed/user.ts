@@ -1,7 +1,7 @@
-import * as userService from "../../domain/user/service";
+import * as userService from "../domain/user/service";
 import { FastifyPluginAsync } from "fastify";
 
-const router: FastifyPluginAsync = async (fastify) => {
+const plugin: FastifyPluginAsync = async (fastify) => {
   const admin = await fastify.prisma.user.findUnique({
     select: {
       id: true,
@@ -16,4 +16,4 @@ const router: FastifyPluginAsync = async (fastify) => {
   }
 };
 
-export default router;
+export default plugin;
