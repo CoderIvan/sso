@@ -33,7 +33,10 @@ const router: FastifyPluginAsync = async (fastify) => {
       }),
     },
     async handler(req, reply) {
-      req.session.user_id = 2; // TODO TEST ONLY
+      if (!(req.session && req.session.user_id)) {
+        reply.redirect("/login.html" + "?return_to=" + req.url)
+        return
+      }
 
       const client = await fastify.prisma.client.findUnique({
         select: {

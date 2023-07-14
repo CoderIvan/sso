@@ -15,6 +15,7 @@ const router: FastifyPluginAsync = async (fastify) => {
       body: z.object({
         login_name: z.string().min(4).max(12),
         password: z.string().min(4).max(12),
+        return_to: z.string().optional(),
       }),
       response: {
         200: z.string(),
@@ -55,6 +56,10 @@ const router: FastifyPluginAsync = async (fastify) => {
         return;
       }
       request.session.user_id = user.id;
+      if (request.body.return_to) {
+        reply.redirect(request.body.return_to)
+        return
+      }
       reply.send("登录成功");
     },
   });

@@ -48,7 +48,6 @@ const router: FastifyPluginAsync = async (fastify) => {
       },
     },
     async handler(req, reply) {
-      console.log();
       const auth = req.headers.authorization;
       if (!auth) {
         reply.code(400).send({ message: "无效认证" });
