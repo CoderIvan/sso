@@ -19,7 +19,7 @@
     "consolidate": "^0.13.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.1",
-    "jsrsasign": "^8.0.20",
+    "jsrsasign": "^10.5.25",
     "qs": "^6.9.3",
     "sync-request": "^2.0.1",
     "underscore": "^1.13.6"
