@@ -14,7 +14,7 @@ export default fp(async (fastify) => {
     client: client,
   });
   fastify.register(fastifySession, {
-    secret: "a secret with minimum length of 32 characters",
+    secret: "47C55ECE-868B-1DD2-0D6E-94A7AE7966DA".split('-').join(''),
     cookie: {
       secure: false, // 设置为true时，只在HTTPS上工作
     },

@@ -1,18 +1,19 @@
-const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
-const express = require('express')
-const bodyParser = require('body-parser')
-const cons = require('consolidate')
 const url = require('url')
-const request = require('sync-request')
-const qs = require('qs')
 const fs = require('fs')
 const querystring = require('querystring')
 const path = require('path')
+
+const jwt = require('jsonwebtoken')
+const express = require('express')
+const bodyParser = require('body-parser')
+const cons = require('consolidate')
+const axios = require('axios')
+
 const { client, authServer } = require('./info')
 
 const publicKey = fs.readFileSync(
-  path.join(__dirname, '../../.public.key'),
+  path.join(__dirname, '.public.key'),
 )
 
 const app = express()
@@ -72,50 +73,35 @@ app.get('/callback', (req, res) => {
     return
   }
 
-  // const resState = req.query.state
-  // if (resState === state) {
-  //   console.log('State value matches: expected %s got %s', state, resState)
-  // } else {
-  //   console.log('State DOES NOT MATCH: expected %s got %s', state, resState)
-  //   res.render('error', { error: 'State value did not match' })
-  //   return
-  // }
+  const resState = req.query.state
+  if (resState !== state) {
+    res.render('error', { error: 'State value did not match' })
+    return
+  }
 
   const { code } = req.query
-  const form_data = qs.stringify({
+
+  axios.post(authServer.tokenEndpoint, {
     grant_type: 'authorization_code',
     code,
     redirect_uri: client.redirect_uris[0],
-  })
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    Authorization: `Basic ${encodeClientCredentials(client.client_id, client.client_secret)}`,
-  }
-
-  const tokRes = request(
-    'POST',
-    authServer.tokenEndpoint,
-    {
-      body: form_data,
-      headers,
+  }, {
+    headers: {
+      Authorization: `Basic ${encodeClientCredentials(client.client_id, client.client_secret)}`,
     },
-  )
-  console.log('Requesting access token for code %s', code)
-
-  if (tokRes.statusCode >= 200 && tokRes.statusCode < 300) {
-    const body = JSON.parse(tokRes.getBody())
-    console.log('id_token', body.id_token)
+  }).then(({ data }) => {
+    const body = data
 
     const payload = jwt.verify(body.id_token, publicKey)
-    console.log('payload', payload)
 
     res.render('userinfo', { id_token: body.id_token, payload })
-  } else {
-    res.render('error', { error: `Unable to fetch access token, server response: ${tokRes.statusCode} ${tokRes.body.toString()}` })
-  }
+  }).catch(({ response: { data, status } }) => {
+    res.render('error', { error: `Unable to fetch access token, server response: ${status} ${JSON.stringify(data)}` })
+  })
 })
 
 const server = app.listen(9000, 'localhost', () => {
   const { address, port } = server.address()
+  // eslint-disable-next-line no-console
   console.log('OAuth Client is listening at http://%s:%s', address, port)
 })
