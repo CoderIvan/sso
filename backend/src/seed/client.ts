@@ -19,6 +19,23 @@ const plugin: FastifyPluginAsync = async (fastify) => {
       ),
     });
   }
+
+  const tool = await fastify.prisma.client.findUnique({
+    select: {
+      id: true,
+    },
+    where: { name: "tool" },
+  });
+  if (!tool) {
+    await fastify.prisma.client.create({
+      data: clientService.create(
+        "tool",
+        "http://localhost:9000/callback",
+        "oauth-client-id-tool",
+        "oauth-client-secret-tool",
+      ),
+    });
+  }
 };
 
 export default plugin;

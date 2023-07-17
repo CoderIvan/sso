@@ -1,6 +1,6 @@
 const client = {
-  client_id: 'oauth-client-id-admin',
-  client_secret: 'oauth-client-secret-admin',
+  client_id: 'oauth-client-id-tool',
+  client_secret: 'oauth-client-secret-tool',
   redirect_uris: ['http://localhost:9000/callback'],
 }
 
@@ -10,7 +10,10 @@ const authServer = {
   tokenEndpoint: 'http://localhost:3000/auth/token',
 }
 
+const protectedResource = 'http://localhost:9002/resource'
+
 module.exports = {
   client,
   authServer,
+  protectedResource,
 }

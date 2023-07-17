@@ -58,6 +58,7 @@ app.get('/authorize', (req, res) => {
 
   const authorizeUrl = buildUrl(authServer.authorizationEndpoint, {
     response_type: 'code',
+    scope: client.scope,
     client_id: client.client_id,
     redirect_uri: client.redirect_uris[0],
     state,
@@ -90,12 +91,16 @@ app.get('/callback', (req, res) => {
       Authorization: `Basic ${encodeClientCredentials(client.client_id, client.client_secret)}`,
     },
   }).then(({ data }) => {
-    const body = data
+    if (!data.id_token) {
+      res.render('error', { error: 'required id_token' })
+      return
+    }
 
-    const payload = jwt.verify(body.id_token, publicKey)
+    const payload = jwt.verify(data.id_token, publicKey)
 
-    res.render('userinfo', { id_token: body.id_token, payload })
-  }).catch(({ response: { data, status } }) => {
+    res.render('userinfo', { id_token: data.id_token, payload })
+  }).catch((error) => {
+    const { response: { data, status } } = error
     res.render('error', { error: `Unable to fetch access token, server response: ${status} ${JSON.stringify(data)}` })
   })
 })

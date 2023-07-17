@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { FastifyPluginAsync } from "fastify";
 import * as querystring from "querystring";
+import * as crypto from "crypto";
 
 const privateKey = fs.readFileSync(
   path.join(__dirname, "../../../.private.key")
@@ -32,15 +33,20 @@ const router: FastifyPluginAsync = async (fastify) => {
       headers: z.object({
         authorization: z.string(),
       }),
-      body: z.object({
-        grant_type: z.enum(["authorization_code"]),
-        code: z.string(),
-        redirect_uri: z.string(),
-      }),
+      body: z.union([
+        z.object({
+          grant_type: z.literal("authorization_code"),
+          code: z.string(),
+        }),
+        z.object({
+          grant_type: z.literal("client_credentials"),
+        })
+      ]),
       response: {
         200: z.object({
+          access_token: z.string(),
           token_type: z.string(),
-          id_token: z.string(),
+          id_token: z.string().optional(),
         }),
         400: z.object({
           message: z.string(),
@@ -72,30 +78,58 @@ const router: FastifyPluginAsync = async (fastify) => {
         return;
       }
 
-      const user = await codes.getAndDelete(req.body.code);
-      if (!user) {
-        reply.code(400).send({ message: "无效Code" });
-        return;
-      }
+      if (req.body.grant_type === "authorization_code") {
+        const user = await codes.getAndDelete(req.body.code);
+        if (!user) {
+          reply.code(400).send({ message: "无效Code" });
+          return;
+        }
 
-      const now = Math.floor(Date.now() / 1000);
-      const ipayload = {
-        iss: `${req.protocol}://${req.hostname}`,
-        sub: user.id,
-        aud: client.client_id,
-        iat: now,
-        exp: now + 5 * 60,
-        user: user,
-      };
+        const token_response: {
+          access_token: string;
+          token_type: string;
+          id_token?: string;
+        } = {
+          access_token: crypto.randomBytes(16).toString("hex"),
+          token_type: "Bearer",
+        };
 
-      const token_response = {
-        token_type: "Bearer",
-        id_token: jwt.sign(ipayload, privateKey, {
+        if (user.scope && user.scope.indexOf('openid') > -1) {
+          const now = Math.floor(Date.now() / 1000);
+          const ipayload = {
+            iss: `${req.protocol}://${req.hostname}`,
+            sub: user.id,
+            aud: client.client_id,
+            iat: now,
+            exp: now + 5 * 60,
+            user: user,
+          };
+          token_response.id_token = jwt.sign(ipayload, privateKey, {
+            algorithm: "ES256",
+          })
+        }
+        reply.send(token_response);
+        return
+      } else if (req.body.grant_type === "client_credentials") {
+        const now = Math.floor(Date.now() / 1000)
+        const payload = {
+          iss: 'http://localhost:3000/', // TODO
+          sub: client_id,
+          aud: 'http://localhost:9002/', // TODO
+          iat: now,
+          exp: now + (5 * 60),
+          jti: crypto.randomBytes(16).toString("hex")
+        };
+        let access_token = jwt.sign(payload, privateKey, {
           algorithm: "ES256",
-        }),
-      };
-
-      reply.send(token_response);
+        })
+        const token_response = {
+          token_type: "Bearer",
+          access_token: access_token,
+        };
+        reply.send(token_response);
+        return
+      }
     },
   });
 };

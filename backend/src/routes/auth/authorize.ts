@@ -30,6 +30,7 @@ const router: FastifyPluginAsync = async (fastify) => {
         client_id: z.string(),
         redirect_uri: z.string(),
         state: z.string(),
+        scope: z.string().optional(),
       }),
     },
     async handler(req, reply) {
@@ -76,7 +77,7 @@ const router: FastifyPluginAsync = async (fastify) => {
 
       if (req.query.response_type === "code") {
         var code = await codes.genAndSet(
-          new CodeValue(user.id, user.login_name)
+          new CodeValue(user.id, user.login_name, req.query.scope)
         );
         return reply.redirect(
           buildUrl(req.query.redirect_uri, {

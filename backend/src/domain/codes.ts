@@ -3,9 +3,11 @@ import * as crypto from "crypto";
 export class CodeValue {
   id: number;
   login_name: string;
-  constructor(id: number, login_name: string) {
+  scope?: string;
+  constructor(id: number, login_name: string, scope?: string) {
     this.id = id;
     this.login_name = login_name;
+    this.scope = scope
   }
 }
 
