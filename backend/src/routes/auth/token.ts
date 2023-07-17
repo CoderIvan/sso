@@ -85,26 +85,36 @@ const router: FastifyPluginAsync = async (fastify) => {
           return;
         }
 
+        const now = Math.floor(Date.now() / 1000)
+        let access_token = jwt.sign({
+          iss: 'http://localhost:3000/', // TODO
+          sub: client_id,
+          aud: 'http://localhost:9002/', // TODO
+          iat: now,
+          exp: now + (5 * 60),
+          jti: crypto.randomBytes(16).toString("hex")
+        }, privateKey, {
+          algorithm: "ES256",
+        })
+
         const token_response: {
           access_token: string;
           token_type: string;
           id_token?: string;
         } = {
-          access_token: crypto.randomBytes(16).toString("hex"),
           token_type: "Bearer",
+          access_token,
         };
 
         if (user.scope && user.scope.indexOf('openid') > -1) {
-          const now = Math.floor(Date.now() / 1000);
-          const ipayload = {
-            iss: `${req.protocol}://${req.hostname}`,
+          token_response.id_token = jwt.sign({
+            iss: 'http://localhost:3000/', // TODO
             sub: user.id,
             aud: client.client_id,
             iat: now,
             exp: now + 5 * 60,
             user: user,
-          };
-          token_response.id_token = jwt.sign(ipayload, privateKey, {
+          }, privateKey, {
             algorithm: "ES256",
           })
         }
